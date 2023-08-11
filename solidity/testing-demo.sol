@@ -26,4 +26,5 @@ contract Token {
     function burn(address account, address owner, uint64 amount) public {
         SplToken.burn(account, mint, owner, amount);
     }
+    
 }

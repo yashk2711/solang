@@ -3,6 +3,8 @@
 import { Connection, Keypair, LAMPORTS_PER_SOL, PublicKey, BpfLoader, Transaction, SystemProgram, BPF_LOADER_PROGRAM_ID, TransactionExpiredBlockheightExceededError } from '@solana/web3.js';
 import { AnchorProvider, Program } from '@coral-xyz/anchor';
 import fs from 'fs';
+import path from 'path';
+const idl = require('./target/idl/Token.json')
 
 const endpoint: string = process.env.RPC_URL || "http://127.0.0.1:8899";
 
@@ -23,14 +25,16 @@ export async function loadContractAndCallConstructor(name: string, args: any[] =
 
 export async function loadContract(name: string):
     Promise<{program: Program, payer: Keypair, provider: AnchorProvider, program_key: PublicKey}> {
-    const idl = JSON.parse(fs.readFileSync(`${name}.json`, 'utf8'));
+        const basepath = path.join(__dirname)
+        const file = path.join(basepath, `${name}`)
+    const idl = JSON.parse(fs.readFileSync(`${file}.json`, 'utf8'));
 
     const payer = loadKey('payer.key');
 
     process.env['ANCHOR_WALLET'] = 'payer.key';
 
     const provider = AnchorProvider.local(endpoint);
-    const program_key = loadKey(`${name}.key`);
+    const program_key = loadKey(`${file}.key`);
     const program = new Program(idl, program_key.publicKey, provider)
     return {program, payer, provider, program_key: program_key.publicKey};
 }
